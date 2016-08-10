@@ -7,6 +7,16 @@ import argparse
 import math
 import textwrap
 
+def generate_openwrt(metric):
+    results = fetch_ip_data()  
+    rfile=open('chnroutes.txt','w')
+
+    rfile.write("10.0.0.0/8\n172.16.0.0/12\n192.168.0.0/16")
+    for ip,_,mask in results:
+        rfile.write('\n%s/%s'%(ip,mask))
+    rfile.close()
+    print "Usage: use chnroutes.txt as domestic ip list for ChinaDNS or shadowsocks-spec."
+
 
 def generate_ovpn(metric):
     results = fetch_ip_data()  
@@ -232,10 +242,10 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description="Generate routing rules for vpn.")
     parser.add_argument('-p','--platform',
                         dest='platform',
-                        default='openvpn',
+                        default='openwrt',
                         nargs='?',
-                        help="Target platforms, it can be openvpn, mac, linux," 
-                        "win, android. openvpn by default.")
+                        help="Target platforms, it can be openwrt, openvpn, mac, linux," 
+                        "win, android. openwrt by default.")
     parser.add_argument('-m','--metric',
                         dest='metric',
                         default=5,
@@ -245,7 +255,9 @@ if __name__=='__main__':
     
     args = parser.parse_args()
     
-    if args.platform.lower() == 'openvpn':
+    if args.platform.lower() == 'openwrt':
+        generate_openwrt(args.metric)
+    elif args.platform.lower() == 'openvpn':
         generate_ovpn(args.metric)
     elif args.platform.lower() == 'linux':
         generate_linux(args.metric)
